@@ -1,4 +1,4 @@
-package provider
+package laravelenvoyer
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 func dataSourceScaffolding() *schema.Resource {
 	return &schema.Resource{
 		// This description is used by the documentation generator and the language server.
-		Description: "Sample data source in the Terraform provider scaffolding.",
+		Description: "Sample data source in the Terraform laravelenvoyer scaffolding.",
 
 		ReadContext: dataSourceScaffoldingRead,
 
@@ -26,7 +26,7 @@ func dataSourceScaffolding() *schema.Resource {
 }
 
 func dataSourceScaffoldingRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
-	// use the meta value to retrieve your client from the provider configure method
+	// use the meta value to retrieve your client from the laravelenvoyer configure method
 	// client := meta.(*apiClient)
 
 	idFromAPI := "my-id"
