@@ -88,7 +88,6 @@ func resourceServer() *schema.Resource {
 				Description: "Public key.",
 				Type:        schema.TypeString,
 				Computed:    true,
-				Sensitive:   true,
 			},
 		},
 	}

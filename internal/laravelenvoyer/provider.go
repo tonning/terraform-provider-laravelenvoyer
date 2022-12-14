@@ -38,7 +38,8 @@ func New(version string) func() *schema.Provider {
 			//	"scaffolding_data_source": dataSourceScaffolding(),
 			//},
 			ResourcesMap: map[string]*schema.Resource{
-				"laravelenvoyer_server": resourceServer(),
+				"laravelenvoyer_project": resourceProject(),
+				"laravelenvoyer_server":  resourceServer(),
 			},
 		}
 

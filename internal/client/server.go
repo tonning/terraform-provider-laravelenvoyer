@@ -12,7 +12,7 @@ import (
 
 func (c *Client) GetServer(projectId string, serverId string) (*Server, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/projects/%s/servers/%s", c.HostURL, projectId, serverId), nil)
-	log.Printf("[INFO] [LARAVELENVOY:GetServer] ProjectId: %s, ServerId: %s", projectId, serverId)
+	log.Printf("[INFO] [LARAVELENVOYER:GetServer] ProjectId: %s, ServerId: %s", projectId, serverId)
 	if err != nil {
 		return nil, err
 	}
@@ -27,13 +27,13 @@ func (c *Client) GetServer(projectId string, serverId string) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("[INFO] [LARAVELENVOY:GetServer] Server: %#v, Body: %#v", &server, body)
+	log.Printf("[INFO] [LARAVELENVOYER:GetServer] Server: %#v, Body: %#v", &server, body)
 
 	return &server.Server, nil
 }
 
 func (c *Client) CreateServer(projectId string, request *CreateServerRequest) (*ServerResponse, error) {
-	log.Printf("[INFO] [LARAVELENVOY:CreateServer]")
+	log.Printf("[INFO] [LARAVELENVOYER:CreateServer]")
 	rb, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
@@ -55,8 +55,8 @@ func (c *Client) CreateServer(projectId string, request *CreateServerRequest) (*
 		return nil, err
 	}
 
-	log.Printf("[INFO] [LARAVELENVOY:CreateServer] Body: %#v", string(body))
-	log.Printf("[INFO] [LARAVELENVOY:CreateServer] Server: %#v", server)
+	log.Printf("[INFO] [LARAVELENVOYER:CreateServer] Body: %#v", string(body))
+	log.Printf("[INFO] [LARAVELENVOYER:CreateServer] Server: %#v", server)
 
 	return &server, nil
 }
