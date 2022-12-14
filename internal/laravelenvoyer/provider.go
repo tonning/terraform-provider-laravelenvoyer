@@ -40,6 +40,7 @@ func New(version string) func() *schema.Provider {
 			ResourcesMap: map[string]*schema.Resource{
 				"laravelenvoyer_project": resourceProject(),
 				"laravelenvoyer_server":  resourceServer(),
+				"laravelenvoyer_hook":    resourceHook(),
 			},
 		}
 
@@ -56,16 +57,16 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		// Warning or errors can be collected in a slice type
 		var diags diag.Diagnostics
 
-		client, err := client.NewClient(nil, &token)
+		envoyerApiClient, err := client.NewClient(nil, &token)
 		if err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  "Unable to create Laravel Envoyer client",
-				Detail:   "Unable to auth user for authenticated Laravel Envoyer client",
+				Summary:  "Unable to create Laravel Envoyer envoyerApiClient",
+				Detail:   "Unable to auth user for authenticated Laravel Envoyer envoyerApiClient",
 			})
 			return nil, diags
 		}
 
-		return client, nil
+		return envoyerApiClient, nil
 	}
 }
