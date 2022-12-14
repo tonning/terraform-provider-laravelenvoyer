@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client/models"
 	"log"
 	"net/http"
 	"strings"
 )
 
-func (c *Client) GetProject(projectId string) (*Project, error) {
+func (c *Client) GetProject(projectId string) (*models.Project, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/projects/%s", c.HostURL, projectId), nil)
 	log.Printf("[INFO] [LARAVELENVOYER:GetProject] ProjectId: %s, ProjectId: %s", projectId)
 	if err != nil {
@@ -22,7 +23,7 @@ func (c *Client) GetProject(projectId string) (*Project, error) {
 		return nil, err
 	}
 
-	project := ProjectResponse{}
+	project := models.ProjectResponse{}
 	err = json.Unmarshal(body, &project)
 	if err != nil {
 		return nil, err
@@ -32,7 +33,7 @@ func (c *Client) GetProject(projectId string) (*Project, error) {
 	return &project.Project, nil
 }
 
-func (c *Client) CreateProject(request *CreateProjectRequest) (*ProjectResponse, error) {
+func (c *Client) CreateProject(request *models.CreateProjectRequest) (*models.ProjectResponse, error) {
 	log.Printf("[INFO] [LARAVELENVOYER:CreateProject]")
 	rb, err := json.Marshal(request)
 	if err != nil {
@@ -49,7 +50,7 @@ func (c *Client) CreateProject(request *CreateProjectRequest) (*ProjectResponse,
 		return nil, err
 	}
 
-	project := ProjectResponse{}
+	project := models.ProjectResponse{}
 	err = json.Unmarshal(body, &project)
 	if err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ func (c *Client) CreateProject(request *CreateProjectRequest) (*ProjectResponse,
 	return &project, nil
 }
 
-func (c *Client) UpdateProject(projectId string, projectUpdates UpdateProjectRequest) (*Project, diag.Diagnostics) {
+func (c *Client) UpdateProject(projectId string, projectUpdates models.UpdateProjectRequest) (*models.Project, diag.Diagnostics) {
 	rb, err := json.Marshal(projectUpdates)
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)
@@ -76,7 +77,7 @@ func (c *Client) UpdateProject(projectId string, projectUpdates UpdateProjectReq
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
 
-	project := ProjectResponse{}
+	project := models.ProjectResponse{}
 	err = json.Unmarshal(body, &project)
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)

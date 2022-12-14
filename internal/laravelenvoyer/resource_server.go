@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	apiClient "github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client"
+	"github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client/models"
 	"log"
 	"strconv"
 
@@ -102,7 +103,7 @@ func resourceServerCreate(ctx context.Context, d *schema.ResourceData, meta any)
 
 	projectId := strconv.Itoa(d.Get("project_id").(int))
 
-	opts := &apiClient.CreateServerRequest{
+	opts := &models.CreateServerRequest{
 		Name:                    d.Get("name").(string),
 		ConnectAs:               d.Get("connect_as").(string),
 		Host:                    d.Get("host").(string),
@@ -169,7 +170,7 @@ func resourceServerUpdate(ctx context.Context, d *schema.ResourceData, meta any)
 	projectId := strconv.Itoa(d.Get("project_id").(int))
 	serverId := d.Id()
 
-	serverUpdates := apiClient.ServerUpdateRequest{
+	serverUpdates := models.ServerUpdateRequest{
 		Name: d.Get("name").(string),
 	}
 

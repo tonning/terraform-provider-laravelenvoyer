@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	apiClient "github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client"
+	"github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client/models"
 	"log"
 	"strconv"
 
@@ -118,7 +119,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta any
 
 	var diags diag.Diagnostics
 
-	opts := &apiClient.CreateProjectRequest{
+	opts := &models.CreateProjectRequest{
 		Name:              d.Get("name").(string),
 		Provider:          d.Get("git_provider").(string),
 		Repository:        d.Get("repository").(string),
@@ -183,7 +184,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta any
 	client := meta.(*apiClient.Client)
 	projectId := d.Id()
 
-	projectUpdates := apiClient.UpdateProjectRequest{
+	projectUpdates := models.UpdateProjectRequest{
 		Name:              d.Get("name").(string),
 		RetainDeployments: d.Get("retain_deployments").(int),
 		Monitor:           d.Get("monitor").(string),

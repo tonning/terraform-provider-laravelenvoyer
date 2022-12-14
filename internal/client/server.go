@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client/models"
 	"log"
 	"net/http"
 	"strings"
 )
 
-func (c *Client) GetServer(projectId string, serverId string) (*Server, error) {
+func (c *Client) GetServer(projectId string, serverId string) (*models.Server, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/projects/%s/servers/%s", c.HostURL, projectId, serverId), nil)
 	log.Printf("[INFO] [LARAVELENVOYER:GetServer] ProjectId: %s, ServerId: %s", projectId, serverId)
 	if err != nil {
@@ -22,7 +23,7 @@ func (c *Client) GetServer(projectId string, serverId string) (*Server, error) {
 		return nil, err
 	}
 
-	server := ServerResponse{}
+	server := models.ServerResponse{}
 	err = json.Unmarshal(body, &server)
 	if err != nil {
 		return nil, err
@@ -32,7 +33,7 @@ func (c *Client) GetServer(projectId string, serverId string) (*Server, error) {
 	return &server.Server, nil
 }
 
-func (c *Client) CreateServer(projectId string, request *CreateServerRequest) (*ServerResponse, error) {
+func (c *Client) CreateServer(projectId string, request *models.CreateServerRequest) (*models.ServerResponse, error) {
 	log.Printf("[INFO] [LARAVELENVOYER:CreateServer]")
 	rb, err := json.Marshal(request)
 	if err != nil {
@@ -49,7 +50,7 @@ func (c *Client) CreateServer(projectId string, request *CreateServerRequest) (*
 		return nil, err
 	}
 
-	server := ServerResponse{}
+	server := models.ServerResponse{}
 	err = json.Unmarshal(body, &server)
 	if err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ func (c *Client) CreateServer(projectId string, request *CreateServerRequest) (*
 	return &server, nil
 }
 
-func (c *Client) UpdateServer(projectId string, serverId string, serverUpdates ServerUpdateRequest) (*Server, diag.Diagnostics) {
+func (c *Client) UpdateServer(projectId string, serverId string, serverUpdates models.ServerUpdateRequest) (*models.Server, diag.Diagnostics) {
 	rb, err := json.Marshal(serverUpdates)
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)
@@ -76,7 +77,7 @@ func (c *Client) UpdateServer(projectId string, serverId string, serverUpdates S
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
 
-	server := ServerResponse{}
+	server := models.ServerResponse{}
 	err = json.Unmarshal(body, &server)
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)
