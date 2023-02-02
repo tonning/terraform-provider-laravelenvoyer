@@ -34,13 +34,14 @@ func New(version string) func() *schema.Provider {
 					DefaultFunc: schema.EnvDefaultFunc("LARAVELENVOYER_TOKEN", nil),
 				},
 			},
-			//DataSourcesMap: map[string]*schema.Resource{
-			//	"scaffolding_data_source": dataSourceScaffolding(),
-			//},
+			DataSourcesMap: map[string]*schema.Resource{
+				"laravelenvoyer_environment": dataSourceEnvironment(),
+			},
 			ResourcesMap: map[string]*schema.Resource{
-				"laravelenvoyer_project": resourceProject(),
-				"laravelenvoyer_server":  resourceServer(),
-				"laravelenvoyer_hook":    resourceHook(),
+				"laravelenvoyer_project":     resourceProject(),
+				"laravelenvoyer_server":      resourceServer(),
+				"laravelenvoyer_hook":        resourceHook(),
+				"laravelenvoyer_environment": resourceEnvironment(),
 			},
 		}
 

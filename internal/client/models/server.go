@@ -42,5 +42,13 @@ type ServerResponse struct {
 }
 
 type ServerUpdateRequest struct {
-	Name string `json:"name"`
+	Name                    string `json:"name"`
+	ConnectAs               string `json:"connectAs"`
+	Host                    string `json:"host"`
+	Port                    int    `json:"port"`
+	PhpVersion              string `json:"phpVersion"`
+	ReceivesCodeDeployments bool   `json:"receivesCodeDeployments"`
+	DeploymentPath          string `json:"deploymentPath"`
+	RestartFpm              bool   `json:"restartFpm"`
+	ComposerPath            string `json:"composerPath"`
 }

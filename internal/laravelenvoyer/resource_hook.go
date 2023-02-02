@@ -8,6 +8,7 @@ import (
 	apiClient "github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client"
 	"github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client/models"
 	"log"
+	"net/http"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -33,16 +34,19 @@ func resourceHook() *schema.Resource {
 				Description: "Hook name",
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 			},
 			"script": {
 				Description: "Script",
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 			},
 			"run_as": {
 				Description: "Run as",
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 			},
 			"action_id": {
 				Description:  "Action ID",
@@ -50,6 +54,7 @@ func resourceHook() *schema.Resource {
 				Optional:     true,
 				Default:      2,
 				ValidateFunc: validation.IntInSlice([]int{1, 2, 3, 4}),
+				ForceNew:     true,
 			},
 			"timing": {
 				Description:  "Timing",
@@ -57,11 +62,13 @@ func resourceHook() *schema.Resource {
 				Optional:     true,
 				Default:      "after",
 				ValidateFunc: validation.StringInSlice([]string{"before", "after"}, true),
+				ForceNew:     true,
 			},
 			"servers": {
 				Description: "Servers",
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -73,7 +80,7 @@ func resourceHookCreate(ctx context.Context, d *schema.ResourceData, meta any) d
 
 	var diags diag.Diagnostics
 
-	projectId := strconv.Itoa(d.Get("project_id").(int))
+	projectId := d.Get("project_id").(string)
 
 	opts := &models.HookCreateRequest{
 		Name:     d.Get("name").(string),
@@ -81,7 +88,7 @@ func resourceHookCreate(ctx context.Context, d *schema.ResourceData, meta any) d
 		RunAs:    d.Get("run_as").(string),
 		ActionId: d.Get("action_id").(int),
 		Timing:   d.Get("timing").(string),
-		Servers:  d.Get("servers").([]int),
+		Servers:  d.Get("servers").([]interface{}),
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("[ENVOYER:resourceHookCreate] Start 2: Opts: %#v", opts))
@@ -99,13 +106,20 @@ func resourceHookCreate(ctx context.Context, d *schema.ResourceData, meta any) d
 }
 
 func resourceHookRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
+	log.Printf("[INFO] [ENVOYER:resourceHookRead] start")
 	client := meta.(*apiClient.Client)
 
 	hookId := d.Id()
-	projectId := strconv.Itoa(d.Get("project_id").(int))
+	projectId := d.Get("project_id").(string)
 
-	hook, err := client.GetHook(projectId, hookId)
+	hook, err, response := client.GetHook(projectId, hookId)
 	if err != nil {
+		if response != nil && response.StatusCode == http.StatusNotFound {
+			d.SetId("")
+
+			return diag.Diagnostics{}
+		}
+		
 		return diag.FromErr(err)
 	}
 
@@ -130,10 +144,10 @@ func resourceHookUpdate(ctx context.Context, d *schema.ResourceData, meta any) d
 	log.Printf("[INFO] [ENVOYER:resourceHookUpdate] Start")
 	client := meta.(*apiClient.Client)
 	hookId := d.Id()
-	projectId := strconv.Itoa(d.Get("project_id").(int))
+	projectId := d.Get("project_id").(string)
 
 	hookUpdates := models.HookUpdateRequest{
-		Servers: d.Get("servers").([]int),
+		Servers: d.Get("servers").([]interface{}),
 	}
 
 	log.Printf("[INFO] [ENVOYER:resourceHookUpdate] project updates: %#v", hookUpdates)
@@ -150,7 +164,7 @@ func resourceHookDelete(ctx context.Context, d *schema.ResourceData, meta any) d
 	c := meta.(*apiClient.Client)
 
 	hookId := d.Id()
-	projectId := strconv.Itoa(d.Get("project_id").(int))
+	projectId := d.Get("project_id").(string)
 
 	err := c.DeleteHook(projectId, hookId)
 	if err != nil {

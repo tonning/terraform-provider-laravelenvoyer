@@ -73,6 +73,13 @@ type UpdateProjectRequest struct {
 	ComposerQuiet     bool   `json:"composer_quiet"`
 }
 
+type UpdateProjectSourceRequest struct {
+	Provider     string `json:"provider"`
+	Repository   string `json:"repository"`
+	Branch       string `json:"branch"`
+	PushToDeploy bool   `json:"push_to_deploy"`
+}
+
 type UpdateProjectTypeRequeset struct {
 	Provider     string `json:"provider"`
 	Repository   string `json:"repository"`

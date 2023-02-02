@@ -18,7 +18,7 @@ func (c *Client) GetServer(projectId string, serverId string) (*models.Server, e
 		return nil, err
 	}
 
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *Client) CreateServer(projectId string, request *models.CreateServerRequ
 		return nil, err
 	}
 
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *Client) UpdateServer(projectId string, serverId string, serverUpdates m
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
 
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
@@ -91,7 +91,7 @@ func (c *Client) DeleteServer(projectId string, serverId string) error {
 	if err != nil {
 		return err
 	}
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return err
 	}

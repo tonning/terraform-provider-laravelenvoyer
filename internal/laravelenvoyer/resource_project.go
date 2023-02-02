@@ -83,7 +83,7 @@ func resourceProject() *schema.Resource {
 				Description: "Git branch.",
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "main",
+				Default:     "master",
 			},
 			"push_to_deploy": {
 				Description: "Pushing to git will cause the project to deploy.",
@@ -133,18 +133,14 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta any
 
 	tflog.Debug(ctx, fmt.Sprintf("[ENVOYER:resourceProjectCreate] Start 2: Opts: %#v", opts))
 	project, err := client.CreateProject(opts)
-	tflog.Debug(ctx, "[ENVOYER:resourceProjectCreate] Start 3")
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	tflog.Debug(ctx, "[ENVOYER:resourceProjectCreate] Start 4")
 	d.SetId(strconv.Itoa(project.Project.Id))
-	tflog.Debug(ctx, "[ENVOYER:resourceProjectCreate] Start 5")
 
 	resourceProjectRead(ctx, d, meta)
-	tflog.Debug(ctx, "[ENVOYER:resourceProjectCreate] Start 6")
 
 	return diags
 }
@@ -184,20 +180,38 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta any
 	client := meta.(*apiClient.Client)
 	projectId := d.Id()
 
-	projectUpdates := models.UpdateProjectRequest{
-		Name:              d.Get("name").(string),
-		RetainDeployments: d.Get("retain_deployments").(int),
-		Monitor:           d.Get("monitor").(string),
-		Composer:          d.Get("composer").(bool),
-		ComposerDev:       d.Get("composer_dev").(bool),
-		ComposerQuiet:     d.Get("composer_quiet").(bool),
+	if d.HasChanges("name", "retain_deployments", "monitor", "composer", "composer_dev", "composer_quiet") {
+		projectUpdates := models.UpdateProjectRequest{
+			Name:              d.Get("name").(string),
+			RetainDeployments: d.Get("retain_deployments").(int),
+			Monitor:           d.Get("monitor").(string),
+			Composer:          d.Get("composer").(bool),
+			ComposerDev:       d.Get("composer_dev").(bool),
+			ComposerQuiet:     d.Get("composer_quiet").(bool),
+		}
+
+		log.Printf("[INFO] [ENVOYER:resourceProjectUpdate] project updates: %#v", projectUpdates)
+
+		_, err := client.UpdateProject(projectId, projectUpdates)
+		if err != nil {
+			return err
+		}
 	}
 
-	log.Printf("[INFO] [ENVOYER:resourceProjectUpdate] project updates: %#v", projectUpdates)
+	if d.HasChanges("git_provider", "repository", "branch", "push_to_deploy") {
+		projectSourceUpdates := models.UpdateProjectSourceRequest{
+			Provider:     d.Get("git_provider").(string),
+			Repository:   d.Get("repository").(string),
+			Branch:       d.Get("branch").(string),
+			PushToDeploy: d.Get("push_to_deploy").(bool),
+		}
 
-	_, err := client.UpdateProject(projectId, projectUpdates)
-	if err != nil {
-		return err
+		log.Printf("[INFO] [ENVOYER:resourceProjectUpdate] project source updates: %#v", projectSourceUpdates)
+
+		_, err := client.UpdateProjectSource(projectId, projectSourceUpdates)
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceProjectRead(ctx, d, meta)

@@ -11,41 +11,41 @@ import (
 	"strings"
 )
 
-func (c *Client) GetHook(projectId string, hookId string) (*models.Hook, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/projects/%s/hook/%s", c.HostURL, projectId, hookId), nil)
+func (c *Client) GetHook(projectId string, hookId string) (*models.Hook, error, *http.Response) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/projects/%s/hooks/%s", c.HostURL, projectId, hookId), nil)
 	log.Printf("[INFO] [LARAVELENVOYER:GetHook] ProjectId: %s, HookId: %s", projectId, hookId)
 	if err != nil {
-		return nil, err
+		return nil, err, nil
 	}
 
-	body, err := c.doRequest(req)
+	body, err, response := c.doRequest(req)
 	if err != nil {
-		return nil, err
+		return nil, err, response
 	}
 
 	hook := models.HookResponse{}
 	err = json.Unmarshal(body, &hook)
 	if err != nil {
-		return nil, err
+		return nil, err, response
 	}
 	log.Printf("[INFO] [LARAVELENVOYER:GetHook] Hook: %#v, Body: %#v", &hook, body)
 
-	return &hook.Hook, nil
+	return &hook.Hook, nil, response
 }
 
 func (c *Client) CreateHook(projectId string, request *models.HookCreateRequest) (*models.HookResponse, error) {
-	log.Printf("[INFO] [LARAVELENVOYER:CreateHook]")
+	log.Printf("[INFO] [LARAVELENVOYER:CreateHook] Project ID: %s, Request: %#v, URL: %s/projects/%s/hooks", projectId, request, c.HostURL, projectId)
 	rb, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/projects/%s/hook", c.HostURL, projectId), strings.NewReader(string(rb)))
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/projects/%s/hooks", c.HostURL, projectId), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, err
 	}
 
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -67,12 +67,12 @@ func (c *Client) UpdateHook(projectId string, hookId string, hookUpdates models.
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
-	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/projects/%s/hook/%s", c.HostURL, projectId, hookId), strings.NewReader(string(rb)))
+	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/projects/%s/hooks/%s", c.HostURL, projectId, hookId), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
 
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
@@ -87,11 +87,11 @@ func (c *Client) UpdateHook(projectId string, hookId string, hookUpdates models.
 }
 
 func (c *Client) DeleteHook(projectId string, hookId string) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/projects/%s/hook/%s", c.HostURL, projectId, hookId), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/projects/%s/hooks/%s", c.HostURL, projectId, hookId), nil)
 	if err != nil {
 		return err
 	}
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return err
 	}

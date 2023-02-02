@@ -21,14 +21,14 @@ type HookResponse struct {
 }
 
 type HookCreateRequest struct {
-	Name     string `json:"name"`
-	Script   string `json:"script"`
-	RunAs    string `json:"runAs"`
-	ActionId int    `json:"actionId"`
-	Timing   string `json:"timing"`
-	Servers  []int  `json:"servers"`
+	Name     string        `json:"name"`
+	Script   string        `json:"script"`
+	RunAs    string        `json:"runAs"`
+	ActionId int           `json:"actionId"`
+	Timing   string        `json:"timing"`
+	Servers  []interface{} `json:"servers"`
 }
 
 type HookUpdateRequest struct {
-	Servers []int `json:"servers"`
+	Servers []interface{} `json:"servers"`
 }

@@ -18,7 +18,7 @@ func (c *Client) GetProject(projectId string) (*models.Project, error) {
 		return nil, err
 	}
 
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *Client) CreateProject(request *models.CreateProjectRequest) (*models.Pr
 		return nil, err
 	}
 
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,31 @@ func (c *Client) UpdateProject(projectId string, projectUpdates models.UpdatePro
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
 
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
+	if err != nil {
+		return nil, diag.Errorf("Whoops: %s", err)
+	}
+
+	project := models.ProjectResponse{}
+	err = json.Unmarshal(body, &project)
+	if err != nil {
+		return nil, diag.Errorf("Whoops: %s", err)
+	}
+
+	return &project.Project, nil
+}
+
+func (c *Client) UpdateProjectSource(projectId string, projectSourceUpdates models.UpdateProjectSourceRequest) (*models.Project, diag.Diagnostics) {
+	rb, err := json.Marshal(projectSourceUpdates)
+	if err != nil {
+		return nil, diag.Errorf("Whoops: %s", err)
+	}
+	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/projects/%s/source", c.HostURL, projectId), strings.NewReader(string(rb)))
+	if err != nil {
+		return nil, diag.Errorf("Whoops: %s", err)
+	}
+
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return nil, diag.Errorf("Whoops: %s", err)
 	}
@@ -91,7 +115,7 @@ func (c *Client) DeleteProject(projectId string) error {
 	if err != nil {
 		return err
 	}
-	body, err := c.doRequest(req)
+	body, err, _ := c.doRequest(req)
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -30,27 +31,27 @@ func NewClient(host, token *string) (*Client, error) {
 	return &c, nil
 }
 
-func (c *Client) doRequest(req *http.Request) ([]byte, error) {
+func (c *Client) doRequest(req *http.Request) ([]byte, error, *http.Response) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.Token))
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-
+	log.Printf("[INFO] [ENVOYER:doRequest] start. Request: %#v, URL: %v", req, req.URL)
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, err, res
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, err, res
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("status: %d, body: %s", res.StatusCode, body)
+		return nil, fmt.Errorf("status: %d, body: %s", res.StatusCode, body), res
 	}
 
-	return body, err
+	return body, err, res
 }
 
 func (c *Client) doRequestEmptyBody(req *http.Request) error {
@@ -64,8 +65,13 @@ func (c *Client) doRequestEmptyBody(req *http.Request) error {
 	}
 	defer res.Body.Close()
 
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("status: %d", res.StatusCode)
+		return fmt.Errorf("status: %d, body: %s", res.StatusCode, body)
 	}
 
 	return err

@@ -90,6 +90,12 @@ func resourceServer() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
+			"composer_path": {
+				Description: "Path to composer",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "composer",
+			},
 		},
 	}
 }
@@ -141,7 +147,8 @@ func resourceServerRead(ctx context.Context, d *schema.ResourceData, meta any) d
 
 	server, err := client.GetServer(projectId, serverId)
 	if err != nil {
-		return diag.FromErr(err)
+		d.SetId("")
+		return diag.Diagnostics{}
 	}
 
 	d.SetId(strconv.Itoa(server.Id))
@@ -171,7 +178,15 @@ func resourceServerUpdate(ctx context.Context, d *schema.ResourceData, meta any)
 	serverId := d.Id()
 
 	serverUpdates := models.ServerUpdateRequest{
-		Name: d.Get("name").(string),
+		Name:                    d.Get("name").(string),
+		Host:                    d.Get("host").(string),
+		Port:                    d.Get("port").(int),
+		PhpVersion:              d.Get("php_version").(string),
+		ConnectAs:               d.Get("connect_as").(string),
+		ReceivesCodeDeployments: d.Get("receives_code_deployments").(bool),
+		RestartFpm:              d.Get("should_restart_fpm").(bool),
+		DeploymentPath:          d.Get("deployment_path").(string),
+		ComposerPath:            d.Get("composer_path").(string),
 	}
 
 	log.Printf("[INFO] [ENVOYER:resourceServerUpdate] server updates: %#v", serverUpdates)
