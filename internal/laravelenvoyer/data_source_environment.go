@@ -2,11 +2,11 @@ package laravelenvoyer
 
 import (
 	"context"
-	apiClient "github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	apiClient "github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client"
+	"github.com/hashicorp/terraform-provider-laravelenvoyer/internal/client/models"
+	"log"
 )
 
 func dataSourceEnvironment() *schema.Resource {
@@ -33,6 +33,12 @@ func dataSourceEnvironment() *schema.Resource {
 				Computed:    true,
 				Sensitive:   true,
 			},
+			"reset_if_no_key": {
+				Type:        schema.TypeBool,
+				Description: "This will reset the environment if no key has been set for the project.",
+				Optional:    true,
+				Default:     true,
+			},
 		},
 	}
 }
@@ -44,7 +50,19 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 	opts := apiClient.EnvironmentGetRequest{
 		Key: d.Get("key").(string),
 	}
-	environment, err, _ := client.GetEnvironment(projectId, opts)
+	environment, err, response := client.GetEnvironment(projectId, opts)
+
+	if err != nil && response.StatusCode != 422 {
+		return diag.FromErr(err)
+	}
+
+	if response.StatusCode == 422 && d.Get("reset_if_no_key").(bool) == true {
+		client.DeleteEnvironment(projectId, models.EnvironmentDeleteRequest{
+			Key: d.Get("key").(string),
+		})
+	}
+
+	environment, err, _ = client.GetEnvironment(projectId, opts)
 
 	if err != nil {
 		return diag.FromErr(err)

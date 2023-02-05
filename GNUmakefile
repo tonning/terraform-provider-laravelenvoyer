@@ -5,7 +5,7 @@ NAME=laravelenvoyer
 BINARY=terraform-provider-${NAME}
 VERSION=1.0
 OS_ARCH=darwin_arm64
-LOCALPATH=/Users/tonning/Code/infrastructure/helixsleep/stratasphere
+LOCALPATH=/Users/tonning/Code/infrastructure/helixsleep/stratasphere/envoyer_project_env_test
 
 default: install
 
@@ -31,9 +31,10 @@ install: build
 	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
 dev: install
+	go generate ./...
 	rm -f ${LOCALPATH}/.terraform.lock.hcl
 	#rm ${LOCALPATH}/terraform.tfstate
-	cd ${LOCALPATH} && terraform init
+	cd ${LOCALPATH} && terraform init -upgrade
 	#cd ${LOCALPATH} && terraform init && terraform plan
 #	cd ${LOCALPATH} && terraform init && terraform apply -auto-approve
 

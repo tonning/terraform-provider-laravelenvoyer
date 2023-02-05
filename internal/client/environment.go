@@ -68,7 +68,7 @@ func (c *Client) DeleteEnvironment(projectId string, updates models.EnvironmentD
 	if err != nil {
 		return diag.Errorf("Whoops: %s", err), nil
 	}
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/projects/%s/environments", c.HostURL, projectId), strings.NewReader(string(rb)))
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/projects/%s/environment", c.HostURL, projectId), strings.NewReader(string(rb)))
 	if err != nil {
 		return diag.FromErr(err), nil
 	}

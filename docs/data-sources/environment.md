@@ -20,6 +20,10 @@ Get a project's environment (.env).
 - `key` (String, Sensitive) Key to unlock environment
 - `project_id` (String) Project ID.
 
+### Optional
+
+- `reset_if_no_key` (Boolean) This will reset the environment if no key has been set for the project.
+
 ### Read-Only
 
 - `environment` (String, Sensitive) Project environment
